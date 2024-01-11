@@ -16,13 +16,28 @@ import (
 	"golang.org/x/mod/modfile"
 )
 
+const (
+	// logo created here: https://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow&t=goxm
+	logo = `
+ ██████╗  ██████╗ ██╗  ██╗███╗   ███╗  version: %s
+██╔════╝ ██╔═══██╗╚██╗██╔╝████╗ ████║  runtime: %s
+██║  ███╗██║   ██║ ╚███╔╝ ██╔████╔██║  gh repo: %s
+██║   ██║██║   ██║ ██╔██╗ ██║╚██╔╝██║
+╚██████╔╝╚██████╔╝██╔╝ ██╗██║ ╚═╝ ██║
+ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝
+
+`
+)
+
 func NewRootCmd() *cobra.Command {
 	c := &cobra.Command{
 		Use: "goxm",
 		Run: func(*cobra.Command, []string) {
-			fmt.Println("goxm v0.1.0")
-			fmt.Println(runtime.Version())
-			fmt.Println("https://github.com/o7q2ab/goxm")
+			fmt.Printf(
+				logo, "v0.1.0",
+				runtime.Version(),
+				"https://github.com/o7q2ab/goxm",
+			)
 		},
 	}
 	c.AddCommand(
