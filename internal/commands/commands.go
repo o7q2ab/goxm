@@ -75,6 +75,11 @@ func newBinaryCmd() *cobra.Command {
 				"%s [%s | %d deps | mod: %s]\n",
 				info.Path, info.GoVersion, len(info.Deps), info.Main.Path,
 			)
+
+			if showDeps || showBuildSettings {
+				latest := getLatest(info.Main.Path)
+				fmt.Printf("\ncurrent: %s\nlatest: %s\n", info.Main.Version, latest)
+			}
 			if showDeps {
 				fmt.Printf("\nDependencies:\n")
 				for _, d := range info.Deps {
