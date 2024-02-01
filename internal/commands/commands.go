@@ -14,6 +14,8 @@ import (
 	"github.com/shirou/gopsutil/v3/process"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/modfile"
+
+	"github.com/o7q2ab/goxm/internal/build"
 )
 
 const (
@@ -21,7 +23,7 @@ const (
 	logo = `
  ██████╗  ██████╗ ██╗  ██╗███╗   ███╗  version: %s
 ██╔════╝ ██╔═══██╗╚██╗██╔╝████╗ ████║  runtime: %s
-██║  ███╗██║   ██║ ╚███╔╝ ██╔████╔██║  gh repo: %s
+██║  ███╗██║   ██║ ╚███╔╝ ██╔████╔██║  gh repo: https://github.com/o7q2ab/goxm
 ██║   ██║██║   ██║ ██╔██╗ ██║╚██╔╝██║
 ╚██████╔╝╚██████╔╝██╔╝ ██╗██║ ╚═╝ ██║
  ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝
@@ -34,9 +36,9 @@ func NewRootCmd() *cobra.Command {
 		Use: "goxm",
 		Run: func(*cobra.Command, []string) {
 			fmt.Printf(
-				logo, "v0.1.0",
+				logo,
+				build.Version(),
 				runtime.Version(),
-				"https://github.com/o7q2ab/goxm",
 			)
 		},
 	}
