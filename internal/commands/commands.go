@@ -130,13 +130,17 @@ func newPathCmd() *cobra.Command {
 		Short:   "Examine all Go binaries found in directories added to PATH environment variable",
 		Run: func(cmd *cobra.Command, args []string) {
 			names := pathenv.List()
-			for i, name := range names {
+
+			first := true
+			for _, name := range names {
 				info, err := buildinfo.ReadFile(name)
 				if err != nil {
 					continue
 				}
 
-				if i != 0 {
+				if first {
+					first = false
+				} else {
 					fmt.Println()
 				}
 
