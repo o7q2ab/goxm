@@ -130,22 +130,21 @@ func newPathCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			names := pathenv.List()
 
-			first := true
+			idx := 0
 			for _, name := range names {
 				info, err := buildinfo.ReadFile(name)
 				if err != nil {
 					continue
 				}
 
-				if first {
-					first = false
-				} else {
-					fmt.Println()
+				if idx != 0 {
+					fmt.Println("---------------")
 				}
+				idx++
 
 				fmt.Printf(
-					"  -%s\n%s [%s | %d deps | mod: %s]\n",
-					name, info.Path, info.GoVersion, len(info.Deps), info.Main.Path,
+					"%d | %s\n%s [%s | %d deps | mod: %s]\n",
+					idx, name, info.Path, info.GoVersion, len(info.Deps), info.Main.Path,
 				)
 
 				if showDeps || showBuildSettings {
