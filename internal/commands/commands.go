@@ -16,6 +16,7 @@ import (
 	"golang.org/x/mod/modfile"
 
 	"github.com/o7q2ab/goxm/internal/build"
+	"github.com/o7q2ab/goxm/internal/pathenv"
 )
 
 const (
@@ -44,6 +45,7 @@ func NewRootCmd() *cobra.Command {
 	}
 	c.AddCommand(
 		newBinaryCmd(),
+		newPathCmd(),
 		newProcCmd(),
 		newModuleCmd(),
 	)
@@ -111,6 +113,60 @@ func newBinaryCmd() *cobra.Command {
 	)
 	c.Flags().BoolVar(
 		&showLatest, "latest", false, "show latest versions for all the dependency modules",
+	)
+	c.Flags().BoolVarP(
+		&showBuildSettings, "build", "b", false, "show the build settings used to build the binary",
+	)
+
+	return c
+}
+
+func newPathCmd() *cobra.Command {
+	var showDeps, showBuildSettings bool
+
+	c := &cobra.Command{
+		Use:     "path",
+		Aliases: []string{"p"},
+		Short:   "Examine all Go binaries found in directories added to PATH environment variable",
+		Run: func(cmd *cobra.Command, args []string) {
+			names := pathenv.List()
+			for i, name := range names {
+				info, err := buildinfo.ReadFile(name)
+				if err != nil {
+					continue
+				}
+
+				if i != 0 {
+					fmt.Println()
+				}
+
+				fmt.Printf(
+					"  -%s\n%s [%s | %d deps | mod: %s]\n",
+					name, info.Path, info.GoVersion, len(info.Deps), info.Main.Path,
+				)
+
+				if showDeps || showBuildSettings {
+					latest := getLatest(info.Main.Path)
+					fmt.Printf("\ncurrent: %s\nlatest: %s\n", info.Main.Version, latest)
+				}
+				if showDeps {
+					fmt.Printf("\nDependencies:\n")
+					for _, d := range info.Deps {
+						fmt.Printf("    %s %s\n", d.Path, d.Version)
+					}
+				}
+				if showBuildSettings {
+					fmt.Printf("\nBuild settings:\n")
+					for _, s := range info.Settings {
+						fmt.Printf("    %s=%s\n", s.Key, s.Value)
+					}
+				}
+			}
+		},
+	}
+
+	c.Flags().BoolVarP(
+		&showDeps, "deps", "d", false, "show all the dependency modules",
 	)
 	c.Flags().BoolVarP(
 		&showBuildSettings, "build", "b", false, "show the build settings used to build the binary",

@@ -28,6 +28,25 @@ Flags:
       --latest   show latest versions for all the dependency modules
 ```
 
+### `path`
+
+Examine all Go binaries found in directories added to PATH environment variable.
+
+Aliases: `path`, `p`.
+
+Example:
+
+```sh
+goxm path
+```
+
+Flags:
+```
+  -b, --build   show the build settings used to build the binary
+  -d, --deps    show all the dependency modules
+  -h, --help    help for path
+```
+
 ### `process`
 
 Examine currently running Go processes.
