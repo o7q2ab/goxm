@@ -32,8 +32,6 @@ Flags:
 
 Examine all Go binaries found in directories added to PATH environment variable.
 
-Aliases: `path`, `p`.
-
 Example:
 
 ```sh

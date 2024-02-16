@@ -125,9 +125,8 @@ func newPathCmd() *cobra.Command {
 	var showDeps, showBuildSettings bool
 
 	c := &cobra.Command{
-		Use:     "path",
-		Aliases: []string{"p"},
-		Short:   "Examine all Go binaries found in directories added to PATH environment variable",
+		Use:   "path",
+		Short: "Examine all Go binaries found in directories added to PATH environment variable",
 		Run: func(cmd *cobra.Command, args []string) {
 			names := pathenv.List()
 
