@@ -19,6 +19,9 @@ func List() []string {
 	all := filepath.SplitList(raw)
 	for _, one := range all {
 		files, err := os.ReadDir(one)
+		if os.IsNotExist(err) {
+			continue
+		}
 		if err != nil {
 			log.Fatal(err)
 		}
