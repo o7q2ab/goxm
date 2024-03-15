@@ -23,7 +23,7 @@ func readCommit() string {
 		return ""
 	}
 	for _, s := range bi.Settings {
-		if s.Key == "vsc.revision" && s.Value != "" {
+		if s.Key == "vcs.revision" && s.Value != "" {
 			return s.Value
 		}
 	}
