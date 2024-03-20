@@ -10,14 +10,18 @@ go install github.com/o7q2ab/goxm@latest
 
 ### `binary`
 
-Examine Go binary file.
+Examine binary file(s) at given path.
 
 Aliases: `binary`, `bin`, `b`.
 
 Example:
 
 ```sh
+# One binary file:
 goxm b ~/go/bin/gopls
+
+# Directory with binary files:
+goxm b ~/go/bin
 ```
 
 Flags:
@@ -43,6 +47,7 @@ Flags:
   -b, --build   show the build settings used to build the binary
   -d, --deps    show all the dependency modules
   -h, --help    help for path
+      --latest   show latest versions for all the dependency modules
 ```
 
 ### `process`

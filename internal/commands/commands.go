@@ -14,8 +14,8 @@ import (
 	"golang.org/x/mod/modfile"
 
 	"github.com/o7q2ab/goxm/internal/build"
-	"github.com/o7q2ab/goxm/internal/pathenv"
 	"github.com/o7q2ab/goxm/internal/xmmod"
+	"github.com/o7q2ab/goxm/internal/xmpath"
 )
 
 const (
@@ -55,55 +55,16 @@ func newBinaryCmd() *cobra.Command {
 	var showDeps, showLatest, showBuildSettings bool
 
 	c := &cobra.Command{
-		Use:     "binary <file-path>",
+		Use:     "binary [<file-path> | <dir-path>]",
 		Aliases: []string{"bin", "b"},
-		Short:   "Examine binary file",
+		Short:   "Examine binary file(s) at given path",
 		Run: func(cmd *cobra.Command, args []string) {
-			p := args[0]
-			stat, err := os.Stat(p)
-			if err != nil {
-				fmt.Println("error:", err)
-				return
-			}
-			if stat.IsDir() {
-				fmt.Println("error: directory")
-				return
-			}
-			info, err := buildinfo.ReadFile(p)
-			if err != nil {
-				fmt.Println("error:", err)
-				return
-			}
-			fmt.Printf(
-				"%s [%s | %d deps | mod: %s]\n",
-				info.Path, info.GoVersion, len(info.Deps), info.Main.Path,
+			printFiles(
+				xmpath.List(args[0]),
+				showDeps,
+				showLatest,
+				showBuildSettings,
 			)
-
-			if showDeps || showBuildSettings {
-				latest := xmmod.GetLatest(info.Main.Path)
-				fmt.Printf("\ncurrent: %s\nlatest: %s\n", info.Main.Version, latest)
-			}
-			if showDeps {
-				fmt.Printf("\nDependencies:\n")
-				for _, d := range info.Deps {
-					suffix := ""
-					if showLatest {
-						latest := xmmod.GetLatest(d.Path)
-						if latest == "" {
-							suffix = " (latest: unknown)"
-						} else {
-							suffix = fmt.Sprintf(" (latest: %s)", latest)
-						}
-					}
-					fmt.Printf("    %s %s%s\n", d.Path, d.Version, suffix)
-				}
-			}
-			if showBuildSettings {
-				fmt.Printf("\nBuild settings:\n")
-				for _, s := range info.Settings {
-					fmt.Printf("    %s=%s\n", s.Key, s.Value)
-				}
-			}
 		},
 	}
 
@@ -121,53 +82,26 @@ func newBinaryCmd() *cobra.Command {
 }
 
 func newPathCmd() *cobra.Command {
-	var showDeps, showBuildSettings bool
+	var showDeps, showLatest, showBuildSettings bool
 
 	c := &cobra.Command{
 		Use:   "path",
 		Short: "Examine all Go binaries found in directories added to PATH environment variable",
 		Run: func(cmd *cobra.Command, args []string) {
-			names := pathenv.List()
-
-			idx := 0
-			for _, name := range names {
-				info, err := buildinfo.ReadFile(name)
-				if err != nil {
-					continue
-				}
-
-				if idx != 0 {
-					fmt.Println("---------------")
-				}
-				idx++
-
-				fmt.Printf(
-					"%d | %s\n%s [%s | %d deps | mod: %s]\n",
-					idx, name, info.Path, info.GoVersion, len(info.Deps), info.Main.Path,
-				)
-
-				if showDeps || showBuildSettings {
-					latest := xmmod.GetLatest(info.Main.Path)
-					fmt.Printf("\ncurrent: %s\nlatest: %s\n", info.Main.Version, latest)
-				}
-				if showDeps {
-					fmt.Printf("\nDependencies:\n")
-					for _, d := range info.Deps {
-						fmt.Printf("    %s %s\n", d.Path, d.Version)
-					}
-				}
-				if showBuildSettings {
-					fmt.Printf("\nBuild settings:\n")
-					for _, s := range info.Settings {
-						fmt.Printf("    %s=%s\n", s.Key, s.Value)
-					}
-				}
-			}
+			printFiles(
+				xmpath.ListPathEnv(),
+				showDeps,
+				showLatest,
+				showBuildSettings,
+			)
 		},
 	}
 
 	c.Flags().BoolVarP(
 		&showDeps, "deps", "d", false, "show all the dependency modules",
+	)
+	c.Flags().BoolVar(
+		&showLatest, "latest", false, "show latest versions for all the dependency modules",
 	)
 	c.Flags().BoolVarP(
 		&showBuildSettings, "build", "b", false, "show the build settings used to build the binary",
@@ -395,4 +329,63 @@ func newModuleCmd() *cobra.Command {
 		},
 	}
 	return c
+}
+
+func printFiles(names []string, showDeps, showLatest, showBuildSettings bool) {
+	short := len(names) == 1
+
+	idx := 0
+	for _, name := range names {
+		info, err := buildinfo.ReadFile(name)
+		if err != nil {
+			continue
+		}
+
+		if idx != 0 {
+			fmt.Println("---------------")
+		}
+		idx++
+
+		if short {
+			fmt.Printf(
+				"%s [%s | %d deps | mod: %s]\n",
+				info.Path, info.GoVersion, len(info.Deps), info.Main.Path,
+			)
+		} else {
+			fmt.Printf(
+				"%d | %s\n%s [%s | %d deps | mod: %s]\n",
+				idx, name, info.Path, info.GoVersion, len(info.Deps), info.Main.Path,
+			)
+		}
+
+		if showDeps || showBuildSettings {
+			latest := xmmod.GetLatest(info.Main.Path)
+			fmt.Printf("\ncurrent: %s\nlatest: %s\n", info.Main.Version, latest)
+		}
+		if showDeps {
+			fmt.Printf("\nDependencies:\n")
+			for _, d := range info.Deps {
+				suffix := ""
+				if showLatest {
+					latest := xmmod.GetLatest(d.Path)
+					if latest == "" {
+						suffix = " (latest: unknown)"
+					} else {
+						suffix = fmt.Sprintf(" (latest: %s)", latest)
+					}
+				}
+				fmt.Printf("    %s %s%s\n", d.Path, d.Version, suffix)
+			}
+		}
+		if showBuildSettings {
+			fmt.Printf("\nBuild settings:\n")
+			for _, s := range info.Settings {
+				fmt.Printf("    %s=%s\n", s.Key, s.Value)
+			}
+		}
+	}
+
+	if idx == 0 {
+		fmt.Println("No Go binary files were found.")
+	}
 }
