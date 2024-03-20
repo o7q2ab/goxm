@@ -2,9 +2,7 @@ package commands
 
 import (
 	"debug/buildinfo"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -17,6 +15,7 @@ import (
 
 	"github.com/o7q2ab/goxm/internal/build"
 	"github.com/o7q2ab/goxm/internal/pathenv"
+	"github.com/o7q2ab/goxm/internal/xmmod"
 )
 
 const (
@@ -81,7 +80,7 @@ func newBinaryCmd() *cobra.Command {
 			)
 
 			if showDeps || showBuildSettings {
-				latest := getLatest(info.Main.Path)
+				latest := xmmod.GetLatest(info.Main.Path)
 				fmt.Printf("\ncurrent: %s\nlatest: %s\n", info.Main.Version, latest)
 			}
 			if showDeps {
@@ -89,7 +88,7 @@ func newBinaryCmd() *cobra.Command {
 				for _, d := range info.Deps {
 					suffix := ""
 					if showLatest {
-						latest := getLatest(d.Path)
+						latest := xmmod.GetLatest(d.Path)
 						if latest == "" {
 							suffix = " (latest: unknown)"
 						} else {
@@ -148,7 +147,7 @@ func newPathCmd() *cobra.Command {
 				)
 
 				if showDeps || showBuildSettings {
-					latest := getLatest(info.Main.Path)
+					latest := xmmod.GetLatest(info.Main.Path)
 					fmt.Printf("\ncurrent: %s\nlatest: %s\n", info.Main.Version, latest)
 				}
 				if showDeps {
@@ -380,7 +379,7 @@ func newModuleCmd() *cobra.Command {
 			}
 			fmt.Println(modf.Module.Mod.Path)
 			for _, r := range modf.Require {
-				latest := getLatest(r.Mod.Path)
+				latest := xmmod.GetLatest(r.Mod.Path)
 				suffix := ""
 				if latest == "" {
 					suffix = " (latest: unknown)"
@@ -396,30 +395,4 @@ func newModuleCmd() *cobra.Command {
 		},
 	}
 	return c
-}
-
-func getLatest(modpath string) string {
-	// GOPROXY protocol: https://go.dev/ref/mod#goproxy-protocol
-
-	resp, err := http.Get("https://proxy.golang.org/" + modpath + "/@latest")
-	if err != nil {
-		return ""
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return ""
-	}
-
-	latest := map[string]any{}
-	err = json.NewDecoder(resp.Body).Decode(&latest)
-	if err != nil {
-		return ""
-	}
-
-	v, ok := latest["Version"].(string)
-	if !ok {
-		return ""
-	}
-	return v
 }
