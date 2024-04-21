@@ -288,19 +288,12 @@ func newModuleCmd() *cobra.Command {
 				p, _ = os.Getwd()
 			}
 
-			stat, err := os.Stat(p)
+			p, err := xmmod.Find(p)
 			if err != nil {
 				fmt.Println("error:", err)
 				return
 			}
-			if stat.IsDir() {
-				p = filepath.Join(p, "go.mod")
-				_, err = os.Stat(p)
-				if err != nil {
-					fmt.Println("error:", err)
-					return
-				}
-			}
+
 			f, err := os.ReadFile(p)
 			if err != nil {
 				fmt.Println("error:", err)
@@ -311,6 +304,7 @@ func newModuleCmd() *cobra.Command {
 				fmt.Println("error:", err)
 				return
 			}
+			fmt.Println("Module root dir:", filepath.Dir(p))
 			fmt.Println(modf.Module.Mod.Path)
 			for _, r := range modf.Require {
 				latest := xmmod.GetLatest(r.Mod.Path)
