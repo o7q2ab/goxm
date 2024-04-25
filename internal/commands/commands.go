@@ -211,12 +211,13 @@ func newProcCmd() *cobra.Command {
 				}
 				idx++
 
-				parent, err := p.Ppid()
+				name, err := p.Name()
 				if err != nil {
-					fmt.Printf("%d | PID: %d [parent: %v]\n", idx, p.Pid, err)
-				} else {
-					fmt.Printf("%d | PID: %d [parent: %d]\n", idx, p.Pid, parent)
+					name = err.Error()
 				}
+
+				fmt.Printf("%d | %s [%d]\n", idx, name, p.Pid)
+
 				fmt.Printf(
 					"%s [%s | %d deps | mod: %s]\n",
 					info.Path, info.GoVersion, len(info.Deps), info.Main.Path,
