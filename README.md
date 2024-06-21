@@ -88,3 +88,19 @@ Flags:
   -h, --help     help for module
 ```
 
+### `module find`
+
+Find Go modules.
+
+Aliases: `find`, `f`.
+
+Example:
+
+```sh
+goxm mod f ./path/to/directory
+```
+
+Flags:
+```
+  -h, --help     help for module
+```

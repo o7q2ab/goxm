@@ -323,6 +323,52 @@ func newModuleCmd() *cobra.Command {
 			}
 		},
 	}
+
+	c.AddCommand(
+		newModuleFindCmd(),
+	)
+
+	return c
+}
+
+func newModuleFindCmd() *cobra.Command {
+	c := &cobra.Command{
+		Use:     "find [<dir-path>]",
+		Aliases: []string{"f"},
+		Short:   "Find Go modules",
+		Run: func(cmd *cobra.Command, args []string) {
+			var p string
+			if len(args) != 0 {
+				p = args[0]
+			} else {
+				p, _ = os.Getwd()
+			}
+			all, err := xmmod.FindAll(p)
+			if err != nil {
+				fmt.Println("error:", err)
+			}
+
+			fmt.Printf("Found %d go.mod files.\n\n", len(all))
+			for i, one := range all {
+				if i != 0 {
+					fmt.Println("---------------")
+				}
+				f, err := os.ReadFile(one)
+				if err != nil {
+					fmt.Println("error:", err)
+					continue
+				}
+				modf, err := modfile.Parse(one, f, nil)
+				if err != nil {
+					fmt.Println("error:", err)
+					continue
+				}
+				fmt.Println("- Module root dir:", filepath.Dir(one))
+				fmt.Println("- Go version:", modf.Go.Version)
+				fmt.Println("- Dependencies:", len(modf.Require))
+			}
+		},
+	}
 	return c
 }
 
