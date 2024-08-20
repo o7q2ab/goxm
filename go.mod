@@ -5,7 +5,7 @@ go 1.22.5
 require (
 	github.com/shirou/gopsutil/v4 v4.24.7
 	github.com/spf13/cobra v1.8.1
-	golang.org/x/mod v0.18.0
+	golang.org/x/mod v0.20.0
 )
 
 require (
