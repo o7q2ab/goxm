@@ -11,7 +11,6 @@ import (
 
 	"github.com/shirou/gopsutil/v4/process"
 	"github.com/spf13/cobra"
-	"golang.org/x/mod/modfile"
 
 	"github.com/o7q2ab/goxm/internal/build"
 	"github.com/o7q2ab/goxm/internal/xmmod"
@@ -295,12 +294,7 @@ func newModuleCmd() *cobra.Command {
 				return
 			}
 
-			f, err := os.ReadFile(p)
-			if err != nil {
-				fmt.Println("error:", err)
-				return
-			}
-			modf, err := modfile.Parse(p, f, nil)
+			modf, err := xmmod.Read(p)
 			if err != nil {
 				fmt.Println("error:", err)
 				return
@@ -353,12 +347,7 @@ func newModuleFindCmd() *cobra.Command {
 				if i != 0 {
 					fmt.Println("---------------")
 				}
-				f, err := os.ReadFile(one)
-				if err != nil {
-					fmt.Println("error:", err)
-					continue
-				}
-				modf, err := modfile.Parse(one, f, nil)
+				modf, err := xmmod.Read(one)
 				if err != nil {
 					fmt.Println("error:", err)
 					continue
