@@ -1,6 +1,6 @@
 module github.com/o7q2ab/goxm
 
-go 1.23.3
+go 1.23.4
 
 require (
 	github.com/shirou/gopsutil/v4 v4.24.10
