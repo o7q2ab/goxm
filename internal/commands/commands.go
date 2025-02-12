@@ -352,9 +352,12 @@ func newModuleFindCmd() *cobra.Command {
 					fmt.Println("error:", err)
 					continue
 				}
-				fmt.Println("- Module root dir:", filepath.Dir(one))
-				fmt.Println("- Go version:", modf.Go.Version)
-				fmt.Println("- Dependencies:", len(modf.Require))
+				d, err := filepath.Rel(p, filepath.Dir(one))
+				if err != nil {
+					d = filepath.Dir(one)
+				}
+				fmt.Println("- Module root dir:", d)
+				fmt.Printf("  %s [go %s | %d deps]\n", modf.Module.Mod.Path, modf.Go.Version, len(modf.Require))
 			}
 		},
 	}
