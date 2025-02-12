@@ -23,3 +23,8 @@ jobs:
           printf "Go version: $(go version)\n"
       - name: Check go.mod
         run: go mod tidy -diff
+      - name: List dependencies
+        run: |
+          go list -mod=readonly -m -u -f '{{if not .Indirect}}{{.Path}} {{.Version}}{{if .Update}} [{{.Update.Version}}]{{end}}{{end}}' all
+          go list -mod=readonly -m -u -f '{{if .Indirect}}[I] {{.Path}} {{.Version}}{{if .Update}} [{{.Update.Version}}]{{end}}{{end}}' all
+
