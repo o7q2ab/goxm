@@ -3,7 +3,7 @@ module github.com/o7q2ab/goxm
 go 1.24.3
 
 require (
-	github.com/shirou/gopsutil/v4 v4.25.1
+	github.com/shirou/gopsutil/v4 v4.25.4
 	github.com/spf13/cobra v1.9.1
 	golang.org/x/mod v0.24.0
 )
